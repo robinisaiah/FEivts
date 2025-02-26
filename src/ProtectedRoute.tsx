@@ -7,11 +7,11 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const navigate = useNavigate();
-  const isAuthenticated = !!localStorage.getItem("authToken");
+  const isAuthenticated = !!localStorage.getItem("token");
 
   useEffect(() => {
     if (!isAuthenticated) {
-      navigate("/login"); // Redirect unauthorized users to login
+      navigate("/login"); // Redirect unauthrized users to login
     }
   }, [isAuthenticated, navigate]);
 

@@ -26,7 +26,9 @@ const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState("");
   const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
-  // alert(API_BASE_URL);
+
+  
+
   const handleLogout = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -40,7 +42,8 @@ const Dashboard: React.FC = () => {
       });
   
       if (response.ok) {
-        localStorage.removeItem("token");
+        localStorage.removeItem('token');
+        sessionStorage.removeItem('token');
         window.location.href = "/"; // Redirect to login page
       } else {
         console.error("Logout failed");

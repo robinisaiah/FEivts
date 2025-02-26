@@ -12,18 +12,16 @@ const Login: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<string>("");
   const navigate = useNavigate();
   const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
+  // Load saved values from local storage
   const [rememberMe, setRememberMe] = useState(localStorage.getItem("rememberMe") === "true");
-  const [username, setUsername] = useState(localStorage.getItem("rememberUsername") || "");
+  const [username, setUsername] = useState(rememberMe ? localStorage.getItem("rememberUsername") || "" : "");
 
   useEffect(() => {
-    if (rememberMe && username) {
-      localStorage.setItem("rememberMe", "true");
-      localStorage.setItem("rememberUsername", username);
-    } else {
-      localStorage.removeItem("rememberMe");
-      localStorage.removeItem("rememberUsername");
+    if (!rememberMe) {
+      setUsername(""); // Clear username field if rememberMe is false
     }
-  }, [rememberMe, username]);
+  }, [rememberMe]);
 
   const onFinish = async (values: { username: string; password: string }) => {
     try {
@@ -36,24 +34,38 @@ const Login: React.FC = () => {
       });
 
       const data = await response.json();
+      const token = data.token;
 
       if (response.ok) {
+        localStorage.setItem("token", token);
+        sessionStorage.setItem("token", token);
         if (rememberMe) {
+          
           localStorage.setItem("rememberMe", "true");
           localStorage.setItem("rememberUsername", values.username);
         } else {
           localStorage.removeItem("rememberMe");
           localStorage.removeItem("rememberUsername");
         }
-        message.success("Login successful! Redirecting...");
-        localStorage.setItem("token", data.token);
-        setTimeout(() => navigate("/dashboard"), 1000);
+        navigate("/dashboard"); // Redirect after login
       } else {
         setErrorMessage(data.message || "Invalid credentials");
       }
     } catch (error) {
       setErrorMessage("An unexpected error occurred. Please try again.");
     }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    sessionStorage.removeItem("token");
+
+    if (!rememberMe) {
+      localStorage.removeItem("rememberUsername");
+      localStorage.removeItem("rememberMe");
+    }
+
+    navigate("/login");
   };
 
   return (
@@ -74,6 +86,7 @@ const Login: React.FC = () => {
             <Form name="login" onFinish={onFinish}>
               <Form.Item
                 name="username"
+                initialValue={username}
                 rules={[{ required: true, message: "Please enter your username!" }]}
               >
                 <Input
