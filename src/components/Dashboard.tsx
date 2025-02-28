@@ -1,282 +1,158 @@
-import React, { useState, useEffect } from "react";
-import { Layout, Menu, Button, Table, Modal, Form, Input, message } from "antd";
-import {
-  UserOutlined,
-  PlusOutlined,
-  EditOutlined,
-  DeleteOutlined,
-  MenuUnfoldOutlined,
-  MenuFoldOutlined,
-  LogoutOutlined,
-  LinkOutlined,
-  ClockCircleOutlined
-} from "@ant-design/icons";
-import "antd/dist/reset.css";
-import { Select } from "antd";
+import React, { useState, useEffect, useCallback } from "react";
+import { Layout, Button, Modal, Form, message } from "antd";
+import { PlusOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
+import Sidebar from "../components/Sidebar";
+import UserTable from "../components/UserTable";
+import UserSessionTable from "../components/UserSessionTable"; // New Component
+import UserForm from "../components/UserForm";
+import { User } from "../interfaces/User";
+import {
+  fetchUsers,
+  fetchIvtsOperatorUrl,
+  saveUser,
+  deleteUser,
+  logout,
+} from "../services/apiService";
+import "antd/dist/reset.css";
 
-
-const { Header, Sider, Content } = Layout;
+const { Header, Content } = Layout;
 
 const Dashboard: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
-  const [users, setUsers] = useState<any[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [editingUser, setEditingUser] = useState<any>(null);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [ivtsOperatorUrl, setIvtsOperatorUrl] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState("");
   const [form] = Form.useForm();
   const navigate = useNavigate();
-  const [errorMessage, setErrorMessage] = useState("");
-  const [ivtsOpretorUrl, setIvtsOpretorUrl] = useState(null);
-  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+  const [activeModule, setActiveModule] = useState<"users" | "sessions">("users"); // Track selected module
 
-  const handleUnauthorized = () => {
-    localStorage.removeItem("token"); // Clear token
-    window.location.href = "/login"; // Redirect to login page
-  };
+  // Fetch users and IVTS URL
+  const loadData = useCallback(async () => {
+    try {
+      const usersData = await fetchUsers();
+      const ivtsUrl = await fetchIvtsOperatorUrl();
+      setUsers(usersData);
+      setIvtsOperatorUrl(ivtsUrl);
+    } catch (error) {
+      console.error("Error loading data:", error);
+    }
+  }, []);
 
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) navigate("/");
+    loadData();
+  }, [loadData, navigate]);
 
+  // Handle logout
   const handleLogout = async () => {
     try {
-      const token = localStorage.getItem("token");
-
-      const response = await fetch(`${API_BASE_URL}/logout`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (response.ok) {
-        localStorage.removeItem('token');
-        sessionStorage.removeItem('token');
-        window.location.href = "/"; // Redirect to login page
-      } else {
-        console.error("Logout failed");
-      }
+      await logout();
+      localStorage.removeItem("token");
+      sessionStorage.removeItem("token");
+      window.location.href = "/";
     } catch (error) {
       console.error("Error during logout:", error);
     }
   };
 
-  const fetchUsers = async () => {
-    const token = localStorage.getItem("token");
-    try {
-      const response = await fetch(`${API_BASE_URL}/users`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-      if (response.status === 401 || response.status === 400) {
-        handleUnauthorized();
-      }
-      const data = await response.json();
-      setUsers(data);
-    } catch (error) {
-      console.error("Error fetching users:", error);
-    }
-  };
-
-  const fetchIvtsOperetorUrl = async () => {
-    const token = localStorage.getItem("token");
-    try {
-      const response = await fetch(`${API_BASE_URL}/getIvtsOpretorUrl`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-      if (response.status === 401 || response.status === 400) {
-        handleUnauthorized();
-      }
-      const data = await response.json();
-      setIvtsOpretorUrl(data);
-    } catch (error) {
-      console.error("Error fetching users:", error);
-    }
-  }
-  useEffect(() => {
-    fetchUsers();
-    fetchIvtsOperetorUrl();
-    const token = localStorage.getItem("token");
-    if (!token) {
-      navigate("/"); // Redirect to login if no token
-    }
-  }, [navigate]);
-
-  const toggleCollapsed = () => {
-    setCollapsed(!collapsed);
-  };
-
-  const handleAddUser = () => {
-    setEditingUser(null);
-    form.resetFields();
-    setIsModalVisible(true);
-  };
-
-  const handleEditUser = (user: any) => {
-    setEditingUser(user);
-    const { password, ...userDataWithoutPassword } = user;
-    form.setFieldsValue(userDataWithoutPassword);
-    setIsModalVisible(true);
-  };
-
-  const handleDeleteUser = async (id: number) => {
-    const isConfirmed = window.confirm("Are you sure? This action cannot be undone.");
-    if (!isConfirmed) {
-      return; // Exit if the user cancels
-    }
-
-    try {
-      setUsers(users.filter((user) => user.id !== id));
-
-      const token = localStorage.getItem("token");
-      const response = await fetch(`${API_BASE_URL}/users/${id}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to delete user");
-      }
-
-      alert("User deleted successfully");
-    } catch (error) {
-      alert("Error deleting user");
-      console.error("Error:", error);
-    }
-  };
-
+  // Handle saving user
   const handleSaveUser = async () => {
     try {
-      const values = await form.validateFields(); // Validate form fields
-      console.log("Form Values:", values); // Debugging step
-      const token = localStorage.getItem("token");
-      let response;
-      if (editingUser) {
-
-        // Update existing user
-        response = await fetch(`${API_BASE_URL}/users/${editingUser.id}`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`
-          },
-          body: JSON.stringify(values),
-        });
-      } else {
-        // Add new user
-        response = await fetch(`${API_BASE_URL}/users`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`
-          },
-          body: JSON.stringify(values),
-        });
-      }
-
-      const data = await response.json();
-      console.log("API Response:", data); // Log API response
-
-      if (!response.ok) {
-        console.error("API Error:", data);
-        setErrorMessage(data.error || `Error: ${response.status}`); // Set error message
-        return;
-      }
-
-      // Update UI after successful API response
-      if (editingUser) {
-        setUsers(users.map((user) => (user.id === editingUser.id ? { ...data, id: user.id } : user)));
-      } else {
-        setUsers([...users, { id: data.id, ...data }]); // Ensure backend returns `id`
-      }
-
-      fetchUsers();
-
+      const values = await form.validateFields();
+      await saveUser(values, !!editingUser);
+      await loadData(); // Refresh the user list
       setIsModalVisible(false);
-      form.resetFields(); // Reset form after success
+      form.resetFields();
       setErrorMessage("");
     } catch (error) {
-      console.error("Error Occurred:", error);
-
-      // alert("Error: " + (error instanceof Error ? error.message : "Check console for details"));
+      console.error("Error saving user:", error);
+      setErrorMessage(error instanceof Error ? error.message : "Unknown error");
     }
   };
 
+  // Handle deleting user
+  const handleDeleteUser = async (id: number) => {
+    if (!window.confirm("Are you sure? This action cannot be undone.")) return;
+    try {
+      await deleteUser(id);
+      setUsers((prevUsers) => prevUsers.filter((user) => user.id !== id));
+    } catch (error) {
+      console.error("Error deleting user:", error);
+    }
+  };
 
-
-  const columns = [
-    { title: "Name", dataIndex: "name", key: "name" },
-    { title: "User Name", dataIndex: "username", key: "username" },
-    { title: "Role", dataIndex: "role", key: "role" },
-    {
-      title: "Actions",
-      key: "actions",
-      render: (_: any, record: any) => (
-        <>
-          <Button icon={<EditOutlined />} onClick={() => handleEditUser(record)} style={{ marginRight: 8 }} />
-          <Button icon={<DeleteOutlined />} onClick={() => handleDeleteUser(record.id)} danger />
-        </>
-      ),
-    },
-  ];
+  const handleOpenModal = (user: User | null) => {
+    setEditingUser(user); 
+    setIsModalVisible(true);
+    form.resetFields();
+    if (user) {
+      form.setFieldsValue({
+        name: user.name,
+        username: user.username,
+        role: user.role,
+        id: user.id
+      });
+    }
+  };
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
-      <Sider collapsible collapsed={collapsed} onCollapse={setCollapsed} breakpoint="md">
-        <div style={{ padding: "16px", textAlign: "center" }}>
-          <Button type="primary" onClick={toggleCollapsed}>
-            {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-          </Button>
-        </div>
-        <Menu theme="dark" defaultSelectedKeys={["1"]} mode="inline">
-          <Menu.Item key="1" icon={<UserOutlined />}>User Management</Menu.Item>
-          <Menu.Item key="2" icon={<ClockCircleOutlined />}>User Sessions</Menu.Item>
-          <Menu.Item key="3" icon={<LinkOutlined />}><a href={ivtsOpretorUrl || "#"} target="_blank">IVTS</a></Menu.Item>
-          <Menu.Item key="4" icon={<LogoutOutlined />} onClick={handleLogout}>Log out</Menu.Item>
-        </Menu>
-      </Sider>
+      <Sidebar
+        collapsed={collapsed}
+        onCollapse={setCollapsed}
+        ivtsOperatorUrl={ivtsOperatorUrl}
+        onLogout={handleLogout}
+        onSelectModule={setActiveModule} // Pass the function to Sidebar
+      />
       <Layout>
-        <Header style={{ background: "#fff", padding: 16, textAlign: "center", fontSize: "20px" }}> <span style={{ fontSize: "20px" }}>Dashboard</span></Header>
-        <Content style={{ margin: "16px", padding: "16px", background: "#fff", borderRadius: "8px" }}>
-          <Button type="primary" icon={<PlusOutlined />} onClick={handleAddUser} style={{ marginBottom: 16 }}>
-            Add User
-          </Button>
-          <Table dataSource={users} columns={columns} rowKey="id" scroll={{ x: "max-content" }} />
+        <Header style={{ background: "#fff", padding: 16, textAlign: "center", fontSize: "20px" }}>
+          Dashboard
+        </Header>
+        <Content  style={{
+    margin: "16px",
+    padding: "16px",
+    background: "#fff",
+    borderRadius: "8px",
+    overflowY: "auto", // Enables vertical scrolling
+    maxHeight: "calc(100vh - 100px)", // Prevents content overflow
+  }}>
+          {activeModule === "users" ? (
+            <>
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={() => {
+                  form.resetFields();
+                  setEditingUser(null);
+                  setIsModalVisible(true);
+                }}
+                style={{ marginBottom: 16 }}
+              >
+                Add User
+              </Button>
+              <UserTable
+                users={users}
+                onEdit={(user) => handleOpenModal(user)}
+                onDelete={handleDeleteUser}
+              />
+            </>
+          ) : (
+            <UserSessionTable /> // Dynamically render session module
+          )}
         </Content>
       </Layout>
-      <Modal title={editingUser ? "Edit User" : "Add User"} visible={isModalVisible} onCancel={() => setIsModalVisible(false)} onOk={handleSaveUser}>
+      <Modal
+        title={editingUser ? "Edit User" : "Add User"}
+        open={isModalVisible}
+        onCancel={() => setIsModalVisible(false)}
+        onOk={handleSaveUser}
+      >
         {errorMessage && <div style={{ color: "red", marginBottom: "10px" }}>{errorMessage}</div>}
-        <Form form={form} layout="vertical">
-          <Form.Item name="name" label="Name" rules={[{ required: true, message: "Please enter the name" }]}>
-            <Input />
-          </Form.Item>
-          <Form.Item name="username" label="User Name" rules={[{ required: true, message: "Please enter the Username" }]}>
-            <Input type="email" />
-          </Form.Item>
-          <Form.Item
-            name="password"
-            label="Password"
-            rules={[{ required: true, message: "Please enter the password" }]}
-          >
-            <Input.Password />
-          </Form.Item>
-          <Form.Item
-            name="role"
-            label="Role"
-            rules={[{ required: true, message: "Please select a role" }]}
-          >
-            <Select placeholder="Select Role">
-              <Select.Option value="Admin">Admin</Select.Option>
-              <Select.Option value="Operator">Operator</Select.Option>
-            </Select>
-          </Form.Item>
-        </Form>
+        <UserForm form={form} onFinish={handleSaveUser} />
       </Modal>
     </Layout>
   );
