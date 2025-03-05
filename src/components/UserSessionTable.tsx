@@ -16,6 +16,8 @@ const UserSessionTable: React.FC = () => {
   const [data, setData] = useState<User[]>([]);
   const [searchText, setSearchText] = useState("");
   const [dateRange, setDateRange] = useState<[string, string] | null>(null);
+  const [forceRender, setForceRender] = useState(0);
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -26,17 +28,18 @@ const UserSessionTable: React.FC = () => {
           toDate: dateRange ? dateRange[1] : "",
         }).toString();
 
-        const response: User[] = await fetchUsesrsSessions();
-        const formattedData = response.map((user, index) => ({
-          key: user.id, // Ensure unique key
-          sno: index + 1, 
+        const response: User[] = await fetchUsesrsSessions(queryParams);
+        const formattedData: User[] = response.map((user, index) => ({
+          id: user.id,  // Ensure 'id' exists
+          sno: index + 1,
           name: user.name,
-          login_time: user.login_time? user.login_time || "N/A",
-          logout_time: user.logout_time? user.logout_time || "Still Active",
-          duration: user.duration? user.duration || "Pending",
+          login_time: user.login_time || "N/A",
+          logout_time: user.logout_time || "Still Active",
+          duration: user.duration || "Pending",
         }));
-  
+  // console.log(formattedData);
         setData(formattedData);
+        setForceRender(prev => prev + 1); 
       } catch (error) {
         console.error("Error fetching user sessions:", error);
       }
@@ -57,7 +60,7 @@ const UserSessionTable: React.FC = () => {
       title: "👤 Name", // Icon for appeal
       dataIndex: "name",
       key: "name",
-      render: (text: string) => <span style={{ fontWeight: "bold" }}>{text}</span>,
+      render: (text: string) => <span >{text}</span>,
     },
     {
       title: "🕒 Login Time",
@@ -107,7 +110,7 @@ const UserSessionTable: React.FC = () => {
         </Col>
       </Row>
 
-      <Table columns={columns} dataSource={data} rowKey="id" />
+      <Table columns={columns} dataSource={data} rowKey={(record) => record.id} key={forceRender} />
     </>
   );
 };

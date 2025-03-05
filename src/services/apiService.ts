@@ -7,7 +7,8 @@ const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 // Fetch all users
 export const fetchUsers = async (): Promise<User[]> => {
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("accessToken");
+  console.log(token);
   const response = await fetch(`${API_BASE_URL}/users`, {
     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
   });
@@ -23,7 +24,7 @@ export const fetchUsers = async (): Promise<User[]> => {
 
 // Fetch IVTS Operator URL
 export const fetchIvtsOperatorUrl = async (): Promise<string> => {
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("accessToken");
   const response = await fetch(`${API_BASE_URL}/getIvtsOpretorUrl`, {
     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
   });
@@ -39,7 +40,7 @@ export const fetchIvtsOperatorUrl = async (): Promise<string> => {
 // Add or update a user
 export const saveUser = async (user: User, isEditing: boolean): Promise<void> => {
 console.log(user);
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("accessToken");
   const response = await fetch(`${API_BASE_URL}/users/${isEditing ? user.id : ""}`, {
     method: isEditing ? "PUT" : "POST",
     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
@@ -51,7 +52,7 @@ console.log(user);
 
 // Delete a user
 export const deleteUser = async (id: number): Promise<void> => {
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("accessToken");
   const response = await fetch(`${API_BASE_URL}/users/${id}`, {
     method: "DELETE",
     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
@@ -62,7 +63,7 @@ export const deleteUser = async (id: number): Promise<void> => {
 
 // Handle logout
 export const logout = async (): Promise<void> => {
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("accessToken");
   const response = await fetch(`${API_BASE_URL}/logout`, {
     method: "POST",
     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
@@ -73,13 +74,13 @@ export const logout = async (): Promise<void> => {
 
 // Handle unauthorized access
 const handleUnauthorized = () => {
-  localStorage.removeItem("token");
-  window.location.href = "/login";
+  localStorage.removeItem("accessToken");
+  // window.location.href = "/login";
 };
 
 export const fetchUsesrsSessions = async (query: string = ""): Promise<User[]> => {
-  const token = localStorage.getItem("token");
-  const response = await fetch(`${API_BASE_URL}/usersSessionsData${query}`, {
+  const token = localStorage.getItem("accessToken");
+  const response = await fetch(`${API_BASE_URL}/usersSessionsData?${query}`, {
     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
   });
 

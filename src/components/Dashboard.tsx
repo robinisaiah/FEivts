@@ -42,7 +42,7 @@ const Dashboard: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("accessToken");
     if (!token) navigate("/");
     loadData();
   }, [loadData, navigate]);
@@ -51,8 +51,8 @@ const Dashboard: React.FC = () => {
   const handleLogout = async () => {
     try {
       await logout();
-      localStorage.removeItem("token");
-      sessionStorage.removeItem("token");
+      localStorage.removeItem("accessToken");
+      sessionStorage.removeItem("accessToken");
       window.location.href = "/";
     } catch (error) {
       console.error("Error during logout:", error);

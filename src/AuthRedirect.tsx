@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 const AuthRedirect = () => {
   const navigate = useNavigate();
-  const isAuthenticated = !!localStorage.getItem("token");
+  const isAuthenticated = !!localStorage.getItem("accessToken");
 
   useEffect(() => {
     if (isAuthenticated) {
