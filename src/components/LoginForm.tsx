@@ -5,6 +5,9 @@ import { LockOutlined, UserOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import "./LoginForm.css";
 import companyLogo from "../images/ivts.png";
+import {
+  fetchIvtsOperatorUrl
+} from "../services/apiService";
 
 const { Title, Text } = Typography;
 
@@ -68,7 +71,7 @@ const Login = () => {
 
   const onFinish = async (values: LoginValues) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/login`, {
+      const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...values, rememberMe }),
@@ -79,7 +82,14 @@ const Login = () => {
       if (response.ok) {
         setAccessToken(data.accessToken);
         localStorage.setItem("accessToken", data.accessToken);
-
+        localStorage.setItem("role", data.role);
+        if (data.role === "Operator") {
+          const operatorUrl = await fetchIvtsOperatorUrl();
+          if (operatorUrl) {
+            window.location.href = operatorUrl; // Redirect dynamically
+            return; // Prevent navigating to "/dashboard"
+          }
+      }
         if (rememberMe) {
           localStorage.setItem("rememberMe", "true");
           localStorage.setItem("rememberUsername", values.username);
@@ -103,7 +113,7 @@ const Login = () => {
       localStorage.removeItem("rememberUsername");
       localStorage.removeItem("rememberMe");
     }
-    fetch(`${API_BASE_URL}/logout`, { method: "POST", credentials: "include" });
+    fetch(`${API_BASE_URL}/api/auth/logout`, { method: "POST", credentials: "include" });
     navigate("/login");
   };
 

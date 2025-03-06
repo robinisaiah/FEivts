@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Layout, Button, Modal, Form, message } from "antd";
+import { Layout, Button, Modal, Form, message, Input } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
@@ -28,6 +28,7 @@ const Dashboard: React.FC = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const [activeModule, setActiveModule] = useState<"users" | "sessions">("users"); // Track selected module
+  const [isResetModalVisible, setIsResetModalVisible] = useState(false);
 
   // Fetch users and IVTS URL
   const loadData = useCallback(async () => {
@@ -64,7 +65,7 @@ const Dashboard: React.FC = () => {
     try {
       const values = await form.validateFields();
       await saveUser(values, !!editingUser);
-      await loadData(); // Refresh the user list
+      await loadData();
       setIsModalVisible(false);
       form.resetFields();
       setErrorMessage("");
@@ -87,6 +88,7 @@ const Dashboard: React.FC = () => {
 
   const handleOpenModal = (user: User | null) => {
     setEditingUser(user); 
+    setErrorMessage("");
     setIsModalVisible(true);
     form.resetFields();
     if (user) {
@@ -99,6 +101,39 @@ const Dashboard: React.FC = () => {
     }
   };
 
+  const handleOpenResetModal = async (id: number) => {
+    setSelectedUserId(id);
+    setIsResetModalVisible(true);
+    form.resetFields();
+  };
+
+  const handleResetPassword = async () => {
+    try {
+      const values = await form.validateFields();
+      if (values.newPassword !== values.confirmPassword) {
+        message.error("Passwords do not match!");
+        return;
+      }
+
+      const response = await fetch(`/api/users/${selectedUserId}/reset-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password: values.newPassword }),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        message.success("Password reset successfully!");
+        setIsResetModalVisible(false);
+      } else {
+        message.error(data.error || "Failed to reset password.");
+      }
+    } catch (error) {
+      console.error("Error resetting password:", error);
+      message.error("Server error. Try again later.");
+    }
+  };
+
   return (
     <Layout style={{ minHeight: "100vh" }}>
       <Sidebar
@@ -106,7 +141,7 @@ const Dashboard: React.FC = () => {
         onCollapse={setCollapsed}
         ivtsOperatorUrl={ivtsOperatorUrl}
         onLogout={handleLogout}
-        onSelectModule={setActiveModule} // Pass the function to Sidebar
+        onSelectModule={setActiveModule} 
       />
       <Layout>
         <Header style={{ background: "#fff", padding: 16, textAlign: "center", fontSize: "20px" }}>
@@ -117,8 +152,8 @@ const Dashboard: React.FC = () => {
     padding: "16px",
     background: "#fff",
     borderRadius: "8px",
-    overflowY: "auto", // Enables vertical scrolling
-    maxHeight: "calc(100vh - 100px)", // Prevents content overflow
+    overflowY: "auto",
+    maxHeight: "calc(100vh - 100px)",
   }}>
           {activeModule === "users" ? (
             <>
@@ -127,6 +162,7 @@ const Dashboard: React.FC = () => {
                 icon={<PlusOutlined />}
                 onClick={() => {
                   form.resetFields();
+                  setErrorMessage("");
                   setEditingUser(null);
                   setIsModalVisible(true);
                 }}
@@ -138,6 +174,7 @@ const Dashboard: React.FC = () => {
                 users={users}
                 onEdit={(user) => handleOpenModal(user)}
                 onDelete={handleDeleteUser}
+                onResetPassword={handleOpenResetModal}
               />
             </>
           ) : (
@@ -152,7 +189,38 @@ const Dashboard: React.FC = () => {
         onOk={handleSaveUser}
       >
         {errorMessage && <div style={{ color: "red", marginBottom: "10px" }}>{errorMessage}</div>}
-        <UserForm form={form} onFinish={handleSaveUser} />
+        <UserForm form={form} onFinish={handleSaveUser} editingUser={editingUser} />
+      </Modal>
+      <Modal
+        title="Reset Password"
+        open={isResetModalVisible}
+        onCancel={() => setIsResetModalVisible(false)}
+        footer={null}
+      >
+        <Form form={form} layout="vertical" onFinish={handleResetPassword}>
+          <Form.Item
+            label="New Password"
+            name="newPassword"
+            rules={[{ required: true, message: "Please enter a new password!" }]}
+          >
+            <Input.Password />
+          </Form.Item>
+
+          <Form.Item
+            label="Confirm Password"
+            name="confirmPassword"
+            rules={[{ required: true, message: "Please confirm your password!" }]}
+          >
+            <Input.Password />
+          </Form.Item>
+
+          <Form.Item>
+            <Button type="primary" htmlType="submit" style={{ marginRight: 8 }}>
+              Reset Password
+            </Button>
+            <Button onClick={() => setIsResetModalVisible(false)}>Cancel</Button>
+          </Form.Item>
+        </Form>
       </Modal>
     </Layout>
   );

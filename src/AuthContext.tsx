@@ -27,7 +27,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const handleLogout = async () => {
     try {
-      await axios.post("http://localhost:4000/logout", {}, { withCredentials: true });
+      await axios.post("http://localhost:4000/api/auth/logout", {}, { withCredentials: true });
       setAccessToken(null);
     } catch (error) {
       console.error("Logout failed", error);

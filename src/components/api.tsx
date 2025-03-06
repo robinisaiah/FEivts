@@ -2,7 +2,7 @@ const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 export const fetchUsersAPI = async () => {
   const token = localStorage.getItem("accessToken");
-  const response = await fetch(`${API_BASE_URL}/users`, {
+  const response = await fetch(`${API_BASE_URL}/api/users`, {
     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
   });
   return response.json();
@@ -10,7 +10,7 @@ export const fetchUsersAPI = async () => {
 
 export const fetchIvtsOperatorUrlAPI = async () => {
   const token = localStorage.getItem("accessToken");
-  const response = await fetch(`${API_BASE_URL}/getIvtsOpretorUrl`, {
+  const response = await fetch(`${API_BASE_URL}/api/getIvtsOpretorUrl`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   return response.json();

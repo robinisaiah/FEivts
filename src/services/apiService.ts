@@ -9,7 +9,7 @@ const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 export const fetchUsers = async (): Promise<User[]> => {
   const token = localStorage.getItem("accessToken");
   console.log(token);
-  const response = await fetch(`${API_BASE_URL}/users`, {
+  const response = await fetch(`${API_BASE_URL}/api/users`, {
     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
   });
 
@@ -25,7 +25,7 @@ export const fetchUsers = async (): Promise<User[]> => {
 // Fetch IVTS Operator URL
 export const fetchIvtsOperatorUrl = async (): Promise<string> => {
   const token = localStorage.getItem("accessToken");
-  const response = await fetch(`${API_BASE_URL}/getIvtsOpretorUrl`, {
+  const response = await fetch(`${API_BASE_URL}/api/getIvtsOpretorUrl`, {
     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
   });
 
@@ -39,21 +39,22 @@ export const fetchIvtsOperatorUrl = async (): Promise<string> => {
 
 // Add or update a user
 export const saveUser = async (user: User, isEditing: boolean): Promise<void> => {
-console.log(user);
   const token = localStorage.getItem("accessToken");
-  const response = await fetch(`${API_BASE_URL}/users/${isEditing ? user.id : ""}`, {
+  const response = await fetch(`${API_BASE_URL}/api/users/${isEditing ? user.id : ""}`, {
     method: isEditing ? "PUT" : "POST",
     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
     body: JSON.stringify(user),
   });
 
-  if (!response.ok) throw new Error("User operation failed");
+  const data = await response.json();
+
+  if (!response.ok) throw new Error(data.error || "User operation failed");
 };
 
 // Delete a user
 export const deleteUser = async (id: number): Promise<void> => {
   const token = localStorage.getItem("accessToken");
-  const response = await fetch(`${API_BASE_URL}/users/${id}`, {
+  const response = await fetch(`${API_BASE_URL}/api/users/${id}`, {
     method: "DELETE",
     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
   });
@@ -64,7 +65,7 @@ export const deleteUser = async (id: number): Promise<void> => {
 // Handle logout
 export const logout = async (): Promise<void> => {
   const token = localStorage.getItem("accessToken");
-  const response = await fetch(`${API_BASE_URL}/logout`, {
+  const response = await fetch(`${API_BASE_URL}/api/auth/logout`, {
     method: "POST",
     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
   });
@@ -80,7 +81,7 @@ const handleUnauthorized = () => {
 
 export const fetchUsesrsSessions = async (query: string = ""): Promise<User[]> => {
   const token = localStorage.getItem("accessToken");
-  const response = await fetch(`${API_BASE_URL}/usersSessionsData?${query}`, {
+  const response = await fetch(`${API_BASE_URL}/api/sessions/usersSessionsData?${query}`, {
     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
   });
 
