@@ -13,6 +13,7 @@ import {
   saveUser,
   deleteUser,
   logout,
+  resetPassword
 } from "../services/apiService";
 import "antd/dist/reset.css";
 
@@ -29,6 +30,7 @@ const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const [activeModule, setActiveModule] = useState<"users" | "sessions">("users"); // Track selected module
   const [isResetModalVisible, setIsResetModalVisible] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
 
   // Fetch users and IVTS URL
   const loadData = useCallback(async () => {
@@ -109,28 +111,24 @@ const Dashboard: React.FC = () => {
 
   const handleResetPassword = async () => {
     try {
-      const values = await form.validateFields();
-      if (values.newPassword !== values.confirmPassword) {
-        message.error("Passwords do not match!");
+      if (selectedUserId === null) {
+        message.error("No user selected.");
         return;
       }
-
-      const response = await fetch(`/api/users/${selectedUserId}/reset-password`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password: values.newPassword }),
-      });
-
-      const data = await response.json();
-      if (response.ok) {
-        message.success("Password reset successfully!");
-        setIsResetModalVisible(false);
-      } else {
-        message.error(data.error || "Failed to reset password.");
-      }
-    } catch (error) {
+  
+      const values = await form.validateFields(); // Get new password from form
+      await resetPassword(selectedUserId as number, values.newPassword); // Ensure it's a number
+  
+      message.success("Password reset successfully!");
+      setIsResetModalVisible(false);
+    } catch (error: unknown) {
       console.error("Error resetting password:", error);
-      message.error("Server error. Try again later.");
+  
+      if (error instanceof Error) {
+        message.error(error.message);
+      } else {
+        message.error("Server error. Try again later.");
+      }
     }
   };
 
@@ -201,7 +199,11 @@ const Dashboard: React.FC = () => {
           <Form.Item
             label="New Password"
             name="newPassword"
-            rules={[{ required: true, message: "Please enter a new password!" }]}
+            rules={[
+              { required: true, message: "Please enter New password!" },
+              { min: 8, message: "Password must be at least 6 characters long!" },
+            ]}
+            hasFeedback
           >
             <Input.Password />
           </Form.Item>
@@ -209,7 +211,18 @@ const Dashboard: React.FC = () => {
           <Form.Item
             label="Confirm Password"
             name="confirmPassword"
-            rules={[{ required: true, message: "Please confirm your password!" }]}
+            dependencies={["newPassword"]}
+            rules={[
+              { required: true, message: "Please confirm your password!" },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  if (!value || getFieldValue("newPassword") === value) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject(new Error("Passwords do not match!"));
+                },
+              }),
+            ]}
           >
             <Input.Password />
           </Form.Item>

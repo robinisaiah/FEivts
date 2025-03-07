@@ -51,6 +51,19 @@ export const saveUser = async (user: User, isEditing: boolean): Promise<void> =>
   if (!response.ok) throw new Error(data.error || "User operation failed");
 };
 
+export const resetPassword = async (id:number, password: string) : Promise<void> => {
+  const token = localStorage.getItem("accessToken");
+  const response = await fetch(`${API_BASE_URL}/api/users/${id}/reset-password`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ password }),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) throw new Error(data.error || "User operation failed");
+}
+
 // Delete a user
 export const deleteUser = async (id: number): Promise<void> => {
   const token = localStorage.getItem("accessToken");

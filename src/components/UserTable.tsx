@@ -1,7 +1,7 @@
 // src/components/UserTable.tsx
 import React from "react";
 import { Table, Button } from "antd";
-import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import { EditOutlined, DeleteOutlined, KeyOutlined } from "@ant-design/icons";
 import { User } from "../interfaces/User";
 
 interface UserTableProps {
@@ -22,9 +22,9 @@ const UserTable: React.FC<UserTableProps> = ({ users, onEdit, onDelete, onResetP
       render: (_: any, record: User) => (
         <>
           <Button icon={<EditOutlined />} onClick={() => onEdit(record)} style={{ marginRight: 8 }} />
-          <Button icon={<DeleteOutlined />} onClick={() => onDelete(record.id)} danger />
-          <Button onClick={() => onResetPassword(record.id)} type="primary">
-            Reset Password
+          <Button icon={<DeleteOutlined />} onClick={() => onDelete(record.id)} danger style={{ marginRight: 8 }}/>
+          <Button type="default"
+            icon={<KeyOutlined />} onClick={() => onResetPassword(record.id)}>
           </Button>
         </>
       ),
