@@ -21,7 +21,7 @@ const UserForm: React.FC<UserFormProps> = ({ form, onFinish, initialValues, edit
         <Input type="hidden" />
       </Form.Item>
       <Form.Item name="username" label="User Name" rules={[{ required: true, message: "Please enter the Username" }]}>
-        <Input type="email" />
+        <Input type="name" />
       </Form.Item>
       { !editingUser && (
       <Form.Item

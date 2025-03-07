@@ -2,56 +2,7 @@
     color-scheme: dark;
 }
 
-.logo-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-bottom: 15px;
-}
-
-/* Logo Animation */
-@keyframes fadeBounce {
-    0% { opacity: 0; transform: translateY(-20px); }
-    50% { opacity: 0.5; transform: translateY(10px); }
-    100% { opacity: 1; transform: translateY(0); }
-}
-
-.company-logo {
-    width: 80px;
-    height: auto;
-    object-fit: contain;
-    display: block;
-    margin: 0 auto;
-    animation: fadeBounce 1.2s ease-in-out;
-}
-
-/* Company Name Animation */
-@keyframes waveText {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-5px); }
-}
-
-.company-name {
-    color: #ffffff;
-    font-size: 18px;
-    font-weight: bold;
-    animation: waveText 1.5s ease-in-out infinite;
-}
-
-/* Glow Effect on Hover */
-@keyframes glowEffect {
-    0% { text-shadow: 0 0 5px #fff; }
-    50% { text-shadow: 0 0 15px #007BFF; }
-    100% { text-shadow: 0 0 5px #fff; }
-}
-
-.company-name:hover {
-    animation: glowEffect 1.5s infinite alternate;
-}
-
-
-
-/* Main Container */
+/* Login Container */
 .login-container {
     display: flex;
     height: 100vh;
@@ -59,61 +10,30 @@
     overflow: hidden;
 }
 
-/* Left Side: Ship Background */
+/* Left Side: Video Background */
 .login-left {
     flex: 3;
-    background: url("../images/radar.jpg") no-repeat center center;
-    background-size: cover;
+    position: relative;
     display: flex;
     justify-content: center;
     align-items: center;
-    position: relative;
-    animation: ship-move 6s ease-in-out infinite alternate;
+    overflow: hidden;
 }
 
-/* 🚢 Ship Swaying Animation */
-@keyframes ship-move {
-    0% { transform: translateX(0px) rotate(0deg); }
-    50% { transform: translateX(5px) rotate(1deg); }
-    100% { transform: translateX(0px) rotate(0deg); }
-}
-
-/* 🌊 Wave Animation */
-.wave {
+.background-video {
     position: absolute;
-    bottom: 0;
     width: 100%;
-    height: 80px;
-    /* background: url("../images/wave.png") repeat-x; */
-    animation: wave-move 4s linear infinite;
-    opacity: 0.7;
+    height: 100%;
+    object-fit: cover;
+    z-index: -2;
 }
 
-@keyframes wave-move {
-    from { background-position: 0 0; }
-    to { background-position: -1000px 0; }
-}
-
-/* Overlay on Image */
 .login-overlay {
-    background: rgba(0, 0, 0, 0.7);
-    color: white;
-    text-align: center;
-    padding: 20px;
-    border-radius: 10px;
-}
-
-/* Glowing Text */
-.welcome-text {
-    color: #fff;
-    font-size: 2rem;
-    font-weight: bold;
-    text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
-}
-
-.tagline {
-    color: #ccc;
-    font-size: 1.2rem;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: -1;
 }
 
 /* Right Side: Login Form */
@@ -122,7 +42,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    background: #010b14;
+    background: #ffffff;
 }
 
 /* Login Card */
@@ -130,81 +50,100 @@
     width: 350px;
     text-align: center;
     padding: 30px;
-    background: #002740;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0, 255, 255, 0.2);
+    background: white;
+    border: 12px solid white;
+    /* box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); */
     animation: fade-in 1s ease-in-out;
 }
 
-/* ✨ Fade-In Animation for Card */
-@keyframes fade-in {
-    from { opacity: 0; transform: scale(0.9); }
-    to { opacity: 1; transform: scale(1); }
-}
-
-/* 🚀 Floating Ship Icon */
-.ship-icon {
+/* Logo */
+.logo-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     margin-bottom: 15px;
-    animation: float 2s ease-in-out infinite;
 }
 
-@keyframes float {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-5px); }
-}
+/* Login Title */
+/* .login-title {
+    font-family: 'Manrope', sans-serif;
+    color: #121212BF;
+    font-family: Manrope;
+    font-weight: 600;
+    font-size: 24px;
+    line-height: 100%;
+    letter-spacing: 0%;
+    vertical-align: middle;
+} */
 
-/* 🔥 Glowing Button Effect */
-.login-button {
-    width: 100%;
-    background: #2b2b2b;
-    border: none;
-    color: #fff;
-    transition: all 0.3s ease-in-out;
-    box-shadow: 0 0 5px #0078D7;
-}
-
-.login-button:hover {
-    background: #121212;
-    box-shadow: 0 0 15px #00ccff, 0 0 30px #00ccff;
-}
+/* Input Fields */
+/* .ant-input {
+    padding: 10px;
+    font-size: 16px;
+    background-color: #f5f5f5;
+} */
 
 /* Remember Me */
 .remember-me {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 8px;
     margin-bottom: 20px;
 }
 
 .remember-text {
     font-size: 14px;
-    color: #ddd;
+    color: #666;
 }
 
-/* ⭐️ Floating Particles */
-@keyframes sparkle {
-    0% { transform: translateY(0) scale(1); opacity: 1; }
-    50% { transform: translateY(-20px) scale(1.2); opacity: 0.5; }
-    100% { transform: translateY(0) scale(1); opacity: 1; }
+/* Login Button */
+.login-button {
+    width: 80%;
+    background: #0078D7;
+    border: none;
+    color: #fff;
+    font-size: 16px;
+    font-weight: bold;
+    transition: all 0.3s ease-in-out;
+    height: 50px;
 }
 
-.sparkle {
-    position: absolute;
-    width: 5px;
-    height: 5px;
-    background: white;
-    border-radius: 50%;
-    animation: sparkle 3s infinite;
-    opacity: 0.8;
+.login-button:hover {
+    background: #005bb5;
+    box-shadow: 0 0 10px rgba(0, 120, 215, 0.6);
 }
 
-/* Random sparkles */
-.sparkle:nth-child(1) { top: 10%; left: 20%; animation-duration: 2s; }
-.sparkle:nth-child(2) { top: 40%; left: 80%; animation-duration: 3s; }
-.sparkle:nth-child(3) { top: 70%; left: 50%; animation-duration: 4s; }
-.sparkle:nth-child(4) { top: 30%; left: 60%; animation-duration: 2.5s; }
+/* Fade-In Animation */
+@keyframes fade-in {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
 
-/* 📱 Responsive Design */
+.custom-password-input input::placeholder {
+    color: gray !important; /* Set placeholder color */
+    opacity: 1; /* Ensure it is fully visible */
+  }
+
+  .remember-checkbox .ant-checkbox-inner {
+    width: 18px; /* Adjust checkbox size */
+    height: 18px;
+    border-radius: 4px; /* Rounded corners */
+    border: 1px solid #ccc; /* Custom border */
+    background-color: #fff;
+  }
+  
+  .remember-checkbox .ant-checkbox-checked .ant-checkbox-inner {
+    background-color: #000000; /* Change checked color */
+    border-color: #ccc;
+  }
+  
+  .remember-text {
+    margin-left: 8px;
+    font-size: 14px;
+    color: gray;
+  }
+  
+
 @media (max-width: 768px) {
     .login-container {
         flex-direction: column;

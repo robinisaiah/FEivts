@@ -6,6 +6,8 @@ import ProtectedRoute from "./ProtectedRoute";
 import GuestRoute from "./GuestRoute"; 
 import React, { useState, useEffect } from "react";
 import AuthRedirect from "./AuthRedirect";
+import "@fontsource/manrope";
+
 
 
 function App() {

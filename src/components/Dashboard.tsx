@@ -201,7 +201,7 @@ const Dashboard: React.FC = () => {
             name="newPassword"
             rules={[
               { required: true, message: "Please enter New password!" },
-              { min: 8, message: "Password must be at least 6 characters long!" },
+              { min: 6, message: "Password must be at least 6 characters long!" },
             ]}
             hasFeedback
           >
