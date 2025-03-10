@@ -1,14 +1,16 @@
-import companyvideo from "../images/iVTSvideo.mp4"; 
+import companyvideo from "../../images/iVTSvideo.mp4"; 
 import React, { useState, useEffect, createContext } from "react";
 import { ConfigProvider, theme, Typography, message } from "antd";
 import { Form, Input, Button, Card, Switch, Checkbox } from "antd";
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import "./LoginForm.css";
-import companyLogo from "../images/Group_1212.png";
+import companyLogo from "../../images/Group_1212.png";
 import {
   fetchIvtsOperatorUrl
-} from "../services/apiService";
+} from "../../services/apiService";
+import { useAuth } from "../../context/AuthContext";
+import api from "../../utils/axiosInstance";
 
 const { Title, Text } = Typography;
 
@@ -23,6 +25,7 @@ interface AuthContextType {
 export const AuthContext = createContext<AuthContextType | null>(null);
 
 const Login = () => {
+  const { setTokens } = useAuth();
   const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
   const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
@@ -56,14 +59,15 @@ const Login = () => {
     }
   };
 
-  useEffect(() => {
-    if (accessToken) {
-      const tokenParts = JSON.parse(atob(accessToken.split(".")[1]));
-      const expirationTime = tokenParts.exp * 1000 - 60000;
-      const timeout = setTimeout(refreshAccessToken, expirationTime - Date.now());
-      return () => clearTimeout(timeout);
-    }
-  }, [accessToken]);
+  // useEffect(() => {
+  //   console.log(accessToken);
+  //   if (accessToken) {
+  //     const tokenParts = JSON.parse(atob(accessToken.split(".")[1]));
+  //     const expirationTime = tokenParts.exp * 1000 - 60000;
+  //     const timeout = setTimeout(refreshAccessToken, expirationTime - Date.now());
+  //     return () => clearTimeout(timeout);
+  //   }
+  // }, [accessToken]);
 
   interface LoginValues {
     username: string;
@@ -71,7 +75,7 @@ const Login = () => {
   }
 
   const onFinish = async (values: LoginValues) => {
-    try {
+    // try {
       const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -81,14 +85,15 @@ const Login = () => {
 
       const data = await response.json();
       if (response.ok) {
+        setTokens(data.accessToken,data.refreshToken);
         setAccessToken(data.accessToken);
         localStorage.setItem("accessToken", data.accessToken);
         localStorage.setItem("role", data.role);
         if (data.role === "Operator") {
           const operatorUrl = await fetchIvtsOperatorUrl();
           if (operatorUrl) {
-            window.location.href = operatorUrl; // Redirect dynamically
-            return; // Prevent navigating to "/dashboard"
+            window.location.href = operatorUrl;
+            return; 
           }
       }
         if (rememberMe) {
@@ -102,9 +107,9 @@ const Login = () => {
       } else {
         setErrorMessage(data.message || "Invalid credentials");
       }
-    } catch (error) {
-      setErrorMessage("An unexpected error occurred. Please try again.");
-    }
+    // } catch (error) {
+    //   setErrorMessage("An unexpected error occurred. Please try again.");
+    // }
   };
 
   const handleLogout = () => {

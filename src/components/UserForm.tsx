@@ -20,9 +20,9 @@ const UserForm: React.FC<UserFormProps> = ({ form, onFinish, initialValues, edit
       <Form.Item name="id" hidden>
         <Input type="hidden" />
       </Form.Item>
-      <Form.Item name="username" label="User Name" rules={[{ required: true, message: "Please enter the Username" }]}>
+      { !editingUser && (<Form.Item name="username" label="User Name" rules={[{ required: true, message: "Please enter the Username" }]}>
         <Input type="name" />
-      </Form.Item>
+      </Form.Item>)}
       { !editingUser && (
       <Form.Item
         name="password"
@@ -69,8 +69,8 @@ const UserForm: React.FC<UserFormProps> = ({ form, onFinish, initialValues, edit
         rules={[{ required: true, message: "Please select a role" }]}
         >
         <Select placeholder="Select Role">
-          <Select.Option value="Admin">Admin</Select.Option>
-          <Select.Option value="Operator">Operator</Select.Option>
+          <Select.Option value="ADMIN">Admin</Select.Option>
+          <Select.Option value="OPERATOR">Operator</Select.Option>
         </Select>
       </Form.Item>
     </Form>
