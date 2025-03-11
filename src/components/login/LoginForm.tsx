@@ -6,9 +6,7 @@ import { LockOutlined, UserOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import "./LoginForm.css";
 import companyLogo from "../../images/ivts_ntcpwc_logo.png";
-import {
-  fetchIvtsOperatorUrl
-} from "../../services/apiService";
+import { fetchIvtsOperatorUrl } from "../../services/apiService";
 import { useAuth } from "../../context/AuthContext";
 
 const { Title, Text } = Typography;
@@ -28,9 +26,15 @@ const Login = () => {
   const navigate = useNavigate();
   const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
-  const [accessToken, setAccessToken] = useState<string | null>(localStorage.getItem("accessToken"));
-  const [rememberMe, setRememberMe] = useState(localStorage.getItem("rememberMe") === "true");
-  const [username, setUsername] = useState(rememberMe ? localStorage.getItem("rememberUsername") || "" : "");
+  const [accessToken, setAccessToken] = useState<string | null>(
+    localStorage.getItem("accessToken")
+  );
+  const [rememberMe, setRememberMe] = useState(
+    localStorage.getItem("rememberMe") === "true"
+  );
+  const [username, setUsername] = useState(
+    rememberMe ? localStorage.getItem("rememberUsername") || "" : ""
+  );
 
   useEffect(() => {
     if (!rememberMe) {
@@ -44,21 +48,19 @@ const Login = () => {
         method: "POST",
         credentials: "include",
       });
-  
+
       const data = await response.json();
       if (!response.ok) {
         throw new Error("Session expired, please login again.");
       }
-  
+
       setTokens(data.accessToken, data.refreshToken); // Update both tokens
       localStorage.setItem("accessToken", data.accessToken);
-localStorage.setItem("refreshToken", data.refreshToken);
-
+      localStorage.setItem("refreshToken", data.refreshToken);
     } catch (error) {
       handleLogout();
     }
   };
-  
 
   interface LoginValues {
     username: string;
@@ -73,27 +75,28 @@ localStorage.setItem("refreshToken", data.refreshToken);
         body: JSON.stringify({ ...values, rememberMe }),
         credentials: "include",
       });
-    
+
       const data = await response.json();
       if (!response.ok) {
         throw new Error(data.message || "Invalid credentials");
       }
-    
+
       setTokens(data.accessToken, data.refreshToken);
       localStorage.setItem("accessToken", data.accessToken);
-localStorage.setItem("refreshToken", data.refreshToken);
+      localStorage.setItem("refreshToken", data.refreshToken);
 
       localStorage.setItem("role", data.role);
       setAccessToken(data.accessToken);
-    
+
       if (data.role === "Operator") {
         const operatorUrl = await fetchIvtsOperatorUrl();
+        alert(operatorUrl);
         if (operatorUrl) {
           window.location.href = operatorUrl;
           return;
         }
       }
-    
+
       if (rememberMe) {
         localStorage.setItem("rememberMe", "true");
         localStorage.setItem("rememberUsername", values.username);
@@ -101,30 +104,28 @@ localStorage.setItem("refreshToken", data.refreshToken);
         localStorage.removeItem("rememberMe");
         localStorage.removeItem("rememberUsername");
       }
-    
+
       navigate("/dashboard");
     } catch (error: any) {
       setErrorMessage(error.message || "An unexpected error occurred.");
     }
-    
   };
 
   const handleLogout = async () => {
     localStorage.removeItem("accessToken");
-localStorage.removeItem("refreshToken");
+    localStorage.removeItem("refreshToken");
 
     setAccessToken(null);
     if (!rememberMe) {
       localStorage.removeItem("rememberUsername");
       localStorage.removeItem("rememberMe");
     }
-    await fetch(`${API_BASE_URL}/api/auth/logout`, { 
-      method: "POST", 
-      credentials: "include"  // Ensure backend clears refresh token
+    await fetch(`${API_BASE_URL}/api/auth/logout`, {
+      method: "POST",
+      credentials: "include", // Ensure backend clears refresh token
     });
     navigate("/login");
   };
-  
 
   return (
     <AuthContext.Provider value={{ accessToken, refreshAccessToken }}>
@@ -140,29 +141,55 @@ localStorage.removeItem("refreshToken");
           </div>
 
           <div className="login-right">
-            <Card className="login-card" style={{ background: "#ffffff", border: "1px solid #ffffff", borderRadius: "8px" }}>
-              <div className="logo-container">
-                <img src={companyLogo} alt="IVTS Logo" className="company-logo" />
-                <Title level={3} className="company-name">i-VTS</Title>
-              </div>
-              <Title level={2} className="login-title" style={{
-                color: "#121212",
-                fontFamily: "Manrope",
-                fontWeight: 600,
-                fontSize: "18px",
-                lineHeight: "100%",
-                letterSpacing: "0%",
-                textAlign: "left",
-                display: "block",
+            <Card
+              className="login-card"
+              style={{
+                background: "#ffffff",
+                border: "1px solid #ffffff",
+                borderRadius: "8px",
               }}
+            >
+              <div className="logo-container">
+                <img
+                  src={companyLogo}
+                  alt="IVTS Logo"
+                  className="company-logo"
+                />
+                <Title level={3} className="company-name">
+                  i-VTS
+                </Title>
+              </div>
+              <Title
+                level={2}
+                className="login-title"
+                style={{
+                  color: "#121212",
+                  fontFamily: "Manrope",
+                  fontWeight: 600,
+                  fontSize: "18px",
+                  lineHeight: "100%",
+                  letterSpacing: "0%",
+                  textAlign: "left",
+                  display: "block",
+                }}
               >
                 Login
               </Title>
 
               {errorMessage && <Text type="danger">{errorMessage}</Text>}
               <Form name="login" onFinish={onFinish}>
-                <Form.Item name="username" initialValue={username} rules={[{ required: true, message: "Please enter your username!" }]}>
-                  <Input prefix={<UserOutlined />} placeholder="Enter Username" value={username} onChange={(e) => setUsername(e.target.value)}
+                <Form.Item
+                  name="username"
+                  initialValue={username}
+                  rules={[
+                    { required: true, message: "Please enter your username!" },
+                  ]}
+                >
+                  <Input
+                    prefix={<UserOutlined />}
+                    placeholder="Enter Username"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
                     style={{
                       backgroundColor: "#f5f5f5", // Change background color
                       padding: "10px", // Add padding
@@ -174,8 +201,14 @@ localStorage.removeItem("refreshToken");
                   />
                 </Form.Item>
 
-                <Form.Item name="password" rules={[{ required: true, message: "Please enter your password!" }]}>
-                  <Input.Password prefix={<LockOutlined />}
+                <Form.Item
+                  name="password"
+                  rules={[
+                    { required: true, message: "Please enter your password!" },
+                  ]}
+                >
+                  <Input.Password
+                    prefix={<LockOutlined />}
                     placeholder="Enter Password"
                     style={{
                       backgroundColor: "#f5f5f5", // Background color
@@ -193,12 +226,20 @@ localStorage.removeItem("refreshToken");
                     checked={rememberMe}
                     onChange={(e) => setRememberMe(e.target.checked)}
                     className="remember-checkbox"
-                  >                  <Text className="remember-text">Remember Me</Text>
+                  >
+                    {" "}
+                    <Text className="remember-text">Remember Me</Text>
                   </Checkbox>
                 </Form.Item>
 
                 <Form.Item>
-                  <Button type="primary" htmlType="submit" className="login-button">Log In</Button>
+                  <Button
+                    type="primary"
+                    htmlType="submit"
+                    className="login-button"
+                  >
+                    Log In
+                  </Button>
                 </Form.Item>
               </Form>
             </Card>

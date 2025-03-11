@@ -84,8 +84,8 @@ const UserForm: React.FC<UserFormProps> = ({
         rules={[{ required: true, message: "Please select a role" }]}
       >
         <Select placeholder="Select Role">
-          <Select.Option value="ADMIN">Admin</Select.Option>
-          <Select.Option value="OPERATOR">Operator</Select.Option>
+          <Select.Option value="ADMIN">ADMIN</Select.Option>
+          <Select.Option value="OPERATOR">OPERATOR</Select.Option>
         </Select>
       </Form.Item>
     </Form>

@@ -39,10 +39,10 @@ const Dashboard: React.FC = () => {
     try {
       const usersData = await fetchUsers();
       const role = localStorage.getItem("role");
-      if (role == "OPERATOR") {
-        const ivtsUrl = await fetchIvtsOperatorUrl();
-        setIvtsOperatorUrl(ivtsUrl);
-      }
+      // if (role == "OPERATOR") {
+      const ivtsUrl = await fetchIvtsOperatorUrl();
+      setIvtsOperatorUrl(ivtsUrl);
+      // }
       setUsers(usersData);
     } catch (error) {
       console.error("Error loading data:", error);
