@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Table, Input, DatePicker, Row, Col } from "antd";
 import type { ColumnsType } from "antd/es/table"; // Correct Import
-import { fetchUsesrsSessions } from "../services/apiService"; // Fixed function name
-import dayjs from "dayjs"; // For date formatting
+import { fetchUsersSessions } from "../../services/apiService";
 
 interface User {
   id: number;
@@ -18,7 +17,6 @@ const UserSessionTable: React.FC = () => {
   const [dateRange, setDateRange] = useState<[string, string] | null>(null);
   const [forceRender, setForceRender] = useState(0);
 
-
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -28,18 +26,18 @@ const UserSessionTable: React.FC = () => {
           toDate: dateRange ? dateRange[1] : "",
         }).toString();
 
-        const response: User[] = await fetchUsesrsSessions(queryParams);
+        const response: User[] = await fetchUsersSessions(queryParams);
         const formattedData: User[] = response.map((user, index) => ({
-          id: user.id,  // Ensure 'id' exists
+          id: user.id, // Ensure 'id' exists
           sno: index + 1,
           name: user.name,
           login_time: user.login_time || "N/A",
           logout_time: user.logout_time || "Still Active",
           duration: user.duration || "Pending",
         }));
-  // console.log(formattedData);
+        // console.log(formattedData);
         setData(formattedData);
-        setForceRender(prev => prev + 1); 
+        setForceRender((prev) => prev + 1);
       } catch (error) {
         console.error("Error fetching user sessions:", error);
       }
@@ -49,7 +47,7 @@ const UserSessionTable: React.FC = () => {
   }, [searchText, dateRange]);
 
   const columns: ColumnsType<User> = [
-     {
+    {
       title: "#", // Shortened for compactness
       dataIndex: "sno",
       key: "sno",
@@ -60,14 +58,18 @@ const UserSessionTable: React.FC = () => {
       title: "👤 Name", // Icon for appeal
       dataIndex: "name",
       key: "name",
-      render: (text: string) => <span >{text}</span>,
+      render: (text: string) => <span>{text}</span>,
     },
     {
       title: "🕒 Login Time",
       dataIndex: "login_time",
       key: "login_time",
       align: "center",
-      render: (text: string) => <span style={{ color: "#3498db" }}><b>{text}</b></span>,
+      render: (text: string) => (
+        <span style={{ color: "#3498db" }}>
+          <b>{text}</b>
+        </span>
+      ),
     },
     {
       title: "🚪 Logout Time",
@@ -75,7 +77,13 @@ const UserSessionTable: React.FC = () => {
       key: "logout_time",
       align: "center",
       render: (text: string | null) =>
-        text ? <span style={{ color: "#e67e22" }}><b>{text}</b></span> : <i style={{ color: "#95a5a6" }}>Still Active</i>,
+        text ? (
+          <span style={{ color: "#e67e22" }}>
+            <b>{text}</b>
+          </span>
+        ) : (
+          <i style={{ color: "#95a5a6" }}>Still Active</i>
+        ),
     },
     {
       title: "⏳ Duration",
@@ -84,11 +92,11 @@ const UserSessionTable: React.FC = () => {
       align: "center",
       render: (text: string | null) => {
         if (!text) return <i style={{ color: "#95a5a6" }}>Pending</i>;
-        const [hours, minutes] = text.split(" : ").map(Number);
+        const [hours] = text.split(" : ").map(Number);
         const color = hours > 2 ? "#e74c3c" : "#2ecc71"; // Red for long sessions, green for short
         return <span style={{ color, fontWeight: "bold" }}>{text} hrs</span>;
       },
-    }
+    },
   ];
 
   return (
@@ -110,7 +118,12 @@ const UserSessionTable: React.FC = () => {
         </Col>
       </Row>
 
-      <Table columns={columns} dataSource={data} rowKey={(record) => record.id} key={forceRender} />
+      <Table
+        columns={columns}
+        dataSource={data}
+        rowKey={(record) => record.id}
+        key={forceRender}
+      />
     </>
   );
 };

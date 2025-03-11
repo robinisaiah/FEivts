@@ -37,13 +37,17 @@ api.interceptors.response.use(
         const newAccessToken = data.accessToken;
         localStorage.setItem("accessToken", newAccessToken);
 
-        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+        api.defaults.headers.common["Authorization"] = `Bearer ${newAccessToken}`;
+originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+
         return axios(originalRequest);
       } catch (refreshError) {
         console.error("Refresh token expired. Logging out.");
         localStorage.removeItem("accessToken");
         localStorage.removeItem("refreshToken");
-        // window.location.href = "/login"; // Redirect to login
+        window.location.href = "/login"; // Redirect to login
+        return Promise.reject(refreshError);
+
       }
     }
 

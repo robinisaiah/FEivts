@@ -2,7 +2,7 @@
 import React from "react";
 import { Table, Button } from "antd";
 import { EditOutlined, DeleteOutlined, KeyOutlined } from "@ant-design/icons";
-import { User } from "../interfaces/User";
+import { User } from "../../interfaces/User";
 
 interface UserTableProps {
   users: User[];

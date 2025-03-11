@@ -5,7 +5,6 @@ import api from "../utils/axiosInstance";
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 
-
 // Fetch all users
 export const fetchUsers = async (): Promise<User[]> => {
   try {
@@ -93,17 +92,10 @@ export const deleteUser = async (id: number): Promise<void> => {
 // Handle logout
 export const logout = async (): Promise<void> => {
   const token = localStorage.getItem("accessToken");
-  const response = await fetch(`${API_BASE_URL}/api/auth/logout`, {
+  await fetch(`${API_BASE_URL}/api/auth/logout`, {
     method: "POST",
     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
   });
-
-  if (!response.ok) {
-    if (response?.status === 403) {
-      //  refreshAccessToken();
-    }
-    throw new Error("Logout failed");
-  }
 };
 
 // Handle unauthorized access
@@ -112,25 +104,26 @@ const handleUnauthorized = () => {
   // window.location.href = "/login";
 };
 
-export const fetchUsesrsSessions = async (query: string = ""): Promise<User[]> => {
-  const token = localStorage.getItem("accessToken");
-  const response = await fetch(`${API_BASE_URL}/api/sessions/usersSessionsData?${query}`, {
-    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-  });
+export const fetchUsersSessions = async (query: string = ""): Promise<User[]> => {  
+  try {  
+    const response = await api.get(`/api/sessions/usersSessionsData?${query}`);  
 
-  if (!response.ok) {
-    if (response.status === 401) handleUnauthorized();
-    if (response?.status === 403) {
-      //  refreshAccessToken();
-    }
-    throw new Error("Failed to fetch users");
-  }
-
-  const data: unknown = await response.json();
-
-  // Ensure type safety by explicitly casting
-  return data as User[];
-};
+    // Return response data directly since Axios does not require `.json()`
+    return response.data as User[];  
+  } catch (error: any) {  
+    if (error.response) {  
+      if (error.response.status === 401) {  
+        handleUnauthorized();  
+      }  
+      if (error.response.status === 403) {  
+        await refreshAccessToken(); // Try refreshing token  
+        return fetchUsersSessions(query); // Retry the request  
+      }  
+    }  
+    console.error("Failed to fetch users:", error.response?.data || error.message);  
+    throw new Error("Failed to fetch users");  
+  }  
+}; 
 
 export const refreshAccessToken = async () => {
   const response = await fetch(`${API_BASE_URL}/api/auth/refresh-token`, {

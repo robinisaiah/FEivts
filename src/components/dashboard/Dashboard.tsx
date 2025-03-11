@@ -2,11 +2,11 @@ import React, { useState, useEffect, useCallback } from "react";
 import { Layout, Button, Modal, Form, message, Input } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
-import Sidebar from "../components/Sidebar";
-import UserTable from "../components/UserTable";
-import UserSessionTable from "../components/UserSessionTable"; // New Component
-import UserForm from "../components/UserForm";
-import { User } from "../interfaces/User";
+import Sidebar from "../Sidebar";
+import UserTable from "../user/UserTable";
+import UserSessionTable from "../user/UserSessionTable"; // New Component
+import UserForm from "../user/UserForm";
+import { User } from "../../interfaces/User";
 import {
   fetchUsers,
   fetchIvtsOperatorUrl,
@@ -14,7 +14,7 @@ import {
   deleteUser,
   logout,
   resetPassword
-} from "../services/apiService";
+} from "../../services/apiService";
 import "antd/dist/reset.css";
 
 const { Header, Content } = Layout;
@@ -36,9 +36,12 @@ const Dashboard: React.FC = () => {
   const loadData = useCallback(async () => {
     try {
       const usersData = await fetchUsers();
-      const ivtsUrl = await fetchIvtsOperatorUrl();
+      const role = localStorage.getItem("role");
+      if(role == "OPERATOR"){
+        const ivtsUrl = await fetchIvtsOperatorUrl();
+        setIvtsOperatorUrl(ivtsUrl);
+      }
       setUsers(usersData);
-      setIvtsOperatorUrl(ivtsUrl);
     } catch (error) {
       console.error("Error loading data:", error);
     }
@@ -55,8 +58,7 @@ const Dashboard: React.FC = () => {
     try {
       await logout();
       localStorage.removeItem("accessToken");
-      sessionStorage.removeItem("accessToken");
-      window.location.href = "/";
+      window.location.href = "/login";
     } catch (error) {
       console.error("Error during logout:", error);
     }
