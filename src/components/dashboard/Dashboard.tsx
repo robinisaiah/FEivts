@@ -13,7 +13,7 @@ import {
   saveUser,
   deleteUser,
   logout,
-  resetPassword
+  resetPassword,
 } from "../../services/apiService";
 import "antd/dist/reset.css";
 
@@ -28,7 +28,9 @@ const Dashboard: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [form] = Form.useForm();
   const navigate = useNavigate();
-  const [activeModule, setActiveModule] = useState<"users" | "sessions">("users"); // Track selected module
+  const [activeModule, setActiveModule] = useState<"users" | "sessions">(
+    "users"
+  ); // Track selected module
   const [isResetModalVisible, setIsResetModalVisible] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
 
@@ -37,7 +39,7 @@ const Dashboard: React.FC = () => {
     try {
       const usersData = await fetchUsers();
       const role = localStorage.getItem("role");
-      if(role == "OPERATOR"){
+      if (role == "OPERATOR") {
         const ivtsUrl = await fetchIvtsOperatorUrl();
         setIvtsOperatorUrl(ivtsUrl);
       }
@@ -91,7 +93,7 @@ const Dashboard: React.FC = () => {
   };
 
   const handleOpenModal = (user: User | null) => {
-    setEditingUser(user); 
+    setEditingUser(user);
     setErrorMessage("");
     setIsModalVisible(true);
     form.resetFields();
@@ -100,7 +102,7 @@ const Dashboard: React.FC = () => {
         name: user.name,
         username: user.username,
         role: user.role,
-        id: user.id
+        id: user.id,
       });
     }
   };
@@ -117,15 +119,15 @@ const Dashboard: React.FC = () => {
         message.error("No user selected.");
         return;
       }
-  
+
       const values = await form.validateFields(); // Get new password from form
       await resetPassword(selectedUserId as number, values.newPassword); // Ensure it's a number
-  
+
       message.success("Password reset successfully!");
       setIsResetModalVisible(false);
     } catch (error: unknown) {
       console.error("Error resetting password:", error);
-  
+
       if (error instanceof Error) {
         message.error(error.message);
       } else {
@@ -141,20 +143,29 @@ const Dashboard: React.FC = () => {
         onCollapse={setCollapsed}
         ivtsOperatorUrl={ivtsOperatorUrl}
         onLogout={handleLogout}
-        onSelectModule={setActiveModule} 
+        onSelectModule={setActiveModule}
       />
       <Layout>
-        <Header style={{ background: "#fff", padding: 16, textAlign: "center", fontSize: "20px" }}>
+        <Header
+          style={{
+            background: "#fff",
+            padding: 16,
+            textAlign: "center",
+            fontSize: "20px",
+          }}
+        >
           Dashboard
         </Header>
-        <Content  style={{
-    margin: "16px",
-    padding: "16px",
-    background: "#fff",
-    borderRadius: "8px",
-    overflowY: "auto",
-    maxHeight: "calc(100vh - 100px)",
-  }}>
+        <Content
+          style={{
+            margin: "16px",
+            padding: "16px",
+            background: "#fff",
+            borderRadius: "8px",
+            overflowY: "auto",
+            maxHeight: "calc(100vh - 100px)",
+          }}
+        >
           {activeModule === "users" ? (
             <>
               <Button
@@ -188,8 +199,16 @@ const Dashboard: React.FC = () => {
         onCancel={() => setIsModalVisible(false)}
         onOk={handleSaveUser}
       >
-        {errorMessage && <div style={{ color: "red", marginBottom: "10px" }}>{errorMessage}</div>}
-        <UserForm form={form} onFinish={handleSaveUser} editingUser={editingUser} />
+        {errorMessage && (
+          <div style={{ color: "red", marginBottom: "10px" }}>
+            {errorMessage}
+          </div>
+        )}
+        <UserForm
+          form={form}
+          onFinish={handleSaveUser}
+          editingUser={editingUser}
+        />
       </Modal>
       <Modal
         title="Reset Password"
@@ -203,7 +222,10 @@ const Dashboard: React.FC = () => {
             name="newPassword"
             rules={[
               { required: true, message: "Please enter New password!" },
-              { min: 6, message: "Password must be at least 6 characters long!" },
+              {
+                min: 6,
+                message: "Password must be at least 6 characters long!",
+              },
             ]}
             hasFeedback
           >
@@ -233,7 +255,9 @@ const Dashboard: React.FC = () => {
             <Button type="primary" htmlType="submit" style={{ marginRight: 8 }}>
               Reset Password
             </Button>
-            <Button onClick={() => setIsResetModalVisible(false)}>Cancel</Button>
+            <Button onClick={() => setIsResetModalVisible(false)}>
+              Cancel
+            </Button>
           </Form.Item>
         </Form>
       </Modal>

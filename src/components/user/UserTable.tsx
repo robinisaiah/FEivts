@@ -11,7 +11,12 @@ interface UserTableProps {
   onDelete: (id: number) => void;
 }
 
-const UserTable: React.FC<UserTableProps> = ({ users, onEdit, onDelete, onResetPassword }) => {
+const UserTable: React.FC<UserTableProps> = ({
+  users,
+  onEdit,
+  onDelete,
+  onResetPassword,
+}) => {
   const columns = [
     { title: "Name", dataIndex: "name", key: "name" },
     { title: "User Name", dataIndex: "username", key: "username" },
@@ -21,11 +26,22 @@ const UserTable: React.FC<UserTableProps> = ({ users, onEdit, onDelete, onResetP
       key: "actions",
       render: (_: any, record: User) => (
         <>
-          <Button icon={<EditOutlined />} onClick={() => onEdit(record)} style={{ marginRight: 8 }} />
-          <Button icon={<DeleteOutlined />} onClick={() => onDelete(record.id)} danger style={{ marginRight: 8 }}/>
-          <Button type="default"
-            icon={<KeyOutlined />} onClick={() => onResetPassword(record.id)}>
-          </Button>
+          <Button
+            icon={<EditOutlined />}
+            onClick={() => onEdit(record)}
+            style={{ marginRight: 8 }}
+          />
+          <Button
+            icon={<DeleteOutlined />}
+            onClick={() => onDelete(record.id)}
+            danger
+            style={{ marginRight: 8 }}
+          />
+          <Button
+            type="default"
+            icon={<KeyOutlined />}
+            onClick={() => onResetPassword(record.id)}
+          ></Button>
         </>
       ),
     },
