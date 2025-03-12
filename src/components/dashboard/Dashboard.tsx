@@ -83,13 +83,23 @@ const Dashboard: React.FC = () => {
 
   // Handle deleting user
   const handleDeleteUser = async (id: number) => {
-    if (!window.confirm("Are you sure? This action cannot be undone.")) return;
-    try {
-      await deleteUser(id);
-      setUsers((prevUsers) => prevUsers.filter((user) => user.id !== id));
-    } catch (error) {
-      console.error("Error deleting user:", error);
-    }
+    Modal.confirm({
+      title: "Are you sure?",
+      content: "This action cannot be undone.",
+      okText: "Yes, Delete",
+      cancelText: "Cancel",
+      okType: "danger",
+      onOk: async () => {
+        try {
+          await deleteUser(id);
+          setUsers((prevUsers) => prevUsers.filter((user) => user.id !== id));
+          message.success("User deleted successfully!");
+        } catch (error) {
+          console.error("Error deleting user:", error);
+          message.error("Failed to delete user.");
+        }
+      },
+    });
   };
 
   const handleOpenModal = (user: User | null) => {
