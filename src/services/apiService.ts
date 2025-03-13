@@ -2,7 +2,7 @@
 import { User } from "../interfaces/User";
 import api from "../utils/axiosInstance";
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL?.replace("{host}", window.location.hostname);;
 
 // Fetch all users
 export const fetchUsers = async (): Promise<User[]> => {
@@ -162,7 +162,7 @@ export const fetchUsersSessions = async (
 
 export const refreshAccessToken = async () => {
   const response = await fetch(`${API_BASE_URL}/auth/refresh-token`, {
-    method: "POST",
+    method: "GET",
     credentials: "include", // ✅ Correct placement
   });
 

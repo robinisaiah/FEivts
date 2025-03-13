@@ -1,7 +1,7 @@
 // utils/axiosInstance.ts
 import axios from "axios";
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL; // Replace with your API URL
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL?.replace("{host}", window.location.hostname);
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -30,9 +30,8 @@ api.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        const response = await axios.post<RefreshTokenResponse>(
+        const response = await axios.get<RefreshTokenResponse>(
           `${API_BASE_URL}/auth/refresh-token`,
-          {},
           { withCredentials: true }
         );
         const data = await response.data;

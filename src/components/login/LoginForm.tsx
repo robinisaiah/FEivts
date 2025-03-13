@@ -23,7 +23,7 @@ const Login = () => {
   const { setTokens } = useAuth();
   const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
-  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL?.replace("{host}", window.location.hostname);;
 
   const [accessToken, setAccessToken] = useState<string | null>(
     localStorage.getItem("accessToken")
@@ -44,7 +44,7 @@ const Login = () => {
   const refreshAccessToken = async () => {
     try {
       const response = await fetch(`${API_BASE_URL}/refresh-token`, {
-        method: "POST",
+        method: "GET",
         credentials: "include",
       });
 

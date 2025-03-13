@@ -9,7 +9,7 @@ import {
   MenuFoldOutlined,
 } from "@ant-design/icons";
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL?.replace("{host}", window.location.hostname);
 
 const { Sider } = Layout;
 
