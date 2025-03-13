@@ -7,11 +7,7 @@ const API_BASE_URL = process.env.REACT_APP_API_BASE_URL?.replace("{host}", windo
 // Fetch all users
 export const fetchUsers = async (): Promise<User[]> => {
   try {
-    const token = localStorage.getItem("accessToken");
-    console.log(token);
-
     const response = await api.get<User[]>(`${API_BASE_URL}/admin/users`);
-
     return response.data; // ✅ Axios does NOT require `.json()`
   } catch (error: any) {
     if (error.response) {

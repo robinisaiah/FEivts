@@ -53,7 +53,7 @@ const Dashboard: React.FC = () => {
     try {
       await logout();
       localStorage.removeItem("accessToken");
-      window.location.href = "/login";
+      window.location.href = process.env.PUBLIC_URL + "/login";
     } catch (error) {
       console.error("Error during logout:", error);
     }

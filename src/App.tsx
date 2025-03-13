@@ -9,7 +9,7 @@ import AuthGuard from "./guards/AuthGuard"; // Import AuthGuard
 const App: React.FC = () => {
   return (
     <AuthProvider>
-      <Router>
+      <Router basename={process.env.PUBLIC_URL}>
         <AntdApp>
           <Routes>
             <Route path="/" element={<Navigate to="/dashboard" />} />
