@@ -1,6 +1,5 @@
 // utils/axiosInstance.ts
 import axios from "axios";
-import { useAuth } from "../context/AuthContext";
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL; // Replace with your API URL
 
@@ -31,7 +30,6 @@ api.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        const refreshToken = localStorage.getItem("refreshToken");
         const response = await axios.post<RefreshTokenResponse>(
           `${API_BASE_URL}/auth/refresh-token`,
           {},

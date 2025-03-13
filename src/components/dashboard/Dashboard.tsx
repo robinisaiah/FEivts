@@ -9,7 +9,6 @@ import UserForm from "../user/UserForm";
 import { User } from "../../interfaces/User";
 import {
   fetchUsers,
-  fetchIvtsOperatorUrl,
   saveUser,
   deleteUser,
   logout,
@@ -24,7 +23,6 @@ const Dashboard: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
-  const [ivtsOperatorUrl, setIvtsOperatorUrl] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState("");
   const [form] = Form.useForm();
   const navigate = useNavigate();
@@ -38,11 +36,6 @@ const Dashboard: React.FC = () => {
   const loadData = useCallback(async () => {
     try {
       const usersData = await fetchUsers();
-      const role = localStorage.getItem("role");
-      // if (role == "OPERATOR") {
-      // const ivtsUrl = await fetchIvtsOperatorUrl();
-      // setIvtsOperatorUrl(ivtsUrl);
-      // }
       setUsers(usersData);
     } catch (error) {
       console.error("Error loading data:", error);

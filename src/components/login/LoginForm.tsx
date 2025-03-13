@@ -6,7 +6,6 @@ import { LockOutlined, UserOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import "./LoginForm.css";
 import companyLogo from "../../images/ivts_ntcpwc_logo.png";
-import { fetchIvtsOperatorUrl } from "../../services/apiService";
 import { useAuth } from "../../context/AuthContext";
 
 const { Title, Text } = Typography;
