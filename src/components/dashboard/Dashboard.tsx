@@ -40,8 +40,8 @@ const Dashboard: React.FC = () => {
       const usersData = await fetchUsers();
       const role = localStorage.getItem("role");
       // if (role == "OPERATOR") {
-      const ivtsUrl = await fetchIvtsOperatorUrl();
-      setIvtsOperatorUrl(ivtsUrl);
+      // const ivtsUrl = await fetchIvtsOperatorUrl();
+      // setIvtsOperatorUrl(ivtsUrl);
       // }
       setUsers(usersData);
     } catch (error) {
@@ -151,7 +151,6 @@ const Dashboard: React.FC = () => {
       <Sidebar
         collapsed={collapsed}
         onCollapse={setCollapsed}
-        ivtsOperatorUrl={ivtsOperatorUrl}
         onLogout={handleLogout}
         onSelectModule={setActiveModule}
       />

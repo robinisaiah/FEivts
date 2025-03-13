@@ -5,13 +5,13 @@ import { useAuth } from "../context/AuthContext";
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL; // Replace with your API URL
 
 const api = axios.create({
-    baseURL: API_BASE_URL,
-    withCredentials: true, // ✅ Send cookies with requests
-  });
+  baseURL: API_BASE_URL,
+  withCredentials: true, // ✅ Send cookies with requests
+});
 
 interface RefreshTokenResponse {
-    accessToken: string;
-  }
+  accessToken: string;
+}
 
 api.interceptors.request.use((config) => {
   const accessToken = localStorage.getItem("accessToken");
@@ -32,13 +32,19 @@ api.interceptors.response.use(
 
       try {
         const refreshToken = localStorage.getItem("refreshToken");
-        const response = await axios.post<RefreshTokenResponse>(`${API_BASE_URL}/api/auth/refresh-token`, {}, { withCredentials: true });
+        const response = await axios.post<RefreshTokenResponse>(
+          `${API_BASE_URL}/auth/refresh-token`,
+          {},
+          { withCredentials: true }
+        );
         const data = await response.data;
         const newAccessToken = data.accessToken;
         localStorage.setItem("accessToken", newAccessToken);
 
-        api.defaults.headers.common["Authorization"] = `Bearer ${newAccessToken}`;
-originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+        api.defaults.headers.common[
+          "Authorization"
+        ] = `Bearer ${newAccessToken}`;
+        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
 
         return axios(originalRequest);
       } catch (refreshError) {
@@ -47,7 +53,6 @@ originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
         localStorage.removeItem("refreshToken");
         window.location.href = "/login"; // Redirect to login
         return Promise.reject(refreshError);
-
       }
     }
 

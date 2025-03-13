@@ -56,7 +56,6 @@ const Login = () => {
 
       setTokens(data.accessToken, data.refreshToken); // Update both tokens
       localStorage.setItem("accessToken", data.accessToken);
-      localStorage.setItem("refreshToken", data.refreshToken);
     } catch (error) {
       handleLogout();
     }
@@ -69,7 +68,7 @@ const Login = () => {
 
   const onFinish = async (values: LoginValues) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...values, rememberMe }),
@@ -83,18 +82,13 @@ const Login = () => {
 
       setTokens(data.accessToken, data.refreshToken);
       localStorage.setItem("accessToken", data.accessToken);
-      localStorage.setItem("refreshToken", data.refreshToken);
 
-      localStorage.setItem("role", data.role);
+      localStorage.setItem("role", data.role.toUpperCase());
       setAccessToken(data.accessToken);
 
-      if (data.role === "Operator") {
-        const operatorUrl = await fetchIvtsOperatorUrl();
-        alert(operatorUrl);
-        if (operatorUrl) {
-          window.location.href = operatorUrl;
-          return;
-        }
+      if (data.role.toUpperCase() === "OPERATOR") {
+        window.location.href = `${API_BASE_URL}/redirect/ivts`;
+        return;
       }
 
       if (rememberMe) {
@@ -120,7 +114,7 @@ const Login = () => {
       localStorage.removeItem("rememberUsername");
       localStorage.removeItem("rememberMe");
     }
-    await fetch(`${API_BASE_URL}/api/auth/logout`, {
+    await fetch(`${API_BASE_URL}/auth/logout`, {
       method: "POST",
       credentials: "include", // Ensure backend clears refresh token
     });
